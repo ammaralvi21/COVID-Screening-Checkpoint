@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.22"/>
+  <object class="GtkWindow">
+    <property name="can-focus">False</property>
+    <property name="hide-titlebar-when-maximized">True</property>
+    <child>
+      <object class="GtkLayout" id="Layout">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkLabel" id="QuestionLabel">
+            <property name="width-request">1212</property>
+            <property name="height-request">280</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-top">7</property>
+            <property name="margin-bottom">12</property>
+            <property name="label" translatable="yes">
+
+</property>
+            <property name="width-chars">107</property>
+            <attributes>
+              <attribute name="font-desc" value="Sans 20"/>
+              <attribute name="foreground" value="#000000000000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">29</property>
+            <property name="y">30</property>
+          </packing>
+        </child>
+	<child>
+          <object class="GtkLabel" id="Warning">
+            <property name="width-request">1212</property>
+            <property name="height-request">100</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes"></property>
+            <attributes>
+              <attribute name="font-desc" value="Calibri Bold 18"/>
+              <attribute name="foreground" value="#FFFF00000000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">50</property>
+            <property name="y">650</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="YesLabel">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Yes</property>
+            <attributes>
+              <attribute name="font-desc" value="Calibri Bold 32"/>
+              <attribute name="foreground" value="#000000000000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">740</property>
+            <property name="y">390</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkDrawingArea" id="YesSelect">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">740</property>
+            <property name="y">390</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="NoLabel">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">No</property>
+            <attributes>
+              <attribute name="font-desc" value="Calibri Bold 32"/>
+              <attribute name="foreground" value="#000000000000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">340</property>
+            <property name="y">390</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkDrawingArea" id="NoSelect">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">340</property>
+            <property name="y">390</property>
+          </packing>
+        </child>
+	<child>
+          <object class="GtkLabel" id="Begin">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes"></property>
+            <attributes>
+              <attribute name="font-desc" value="Calibri Bold 30"/>
+              <attribute name="foreground" value="#000000000000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">540</property>
+            <property name="y">386</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkDrawingArea" id="BeginSelect">
+            <property name="width-request">200</property>
+            <property name="height-request">200</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="x">540</property>
+            <property name="y">386</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
