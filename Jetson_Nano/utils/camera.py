@@ -92,6 +92,7 @@ def open_cam_onboard(width, height):
     """Open the Jetson onboard camera."""
     gst_elements = str(subprocess.check_output('gst-inspect-1.0'))
     if 'nvcamerasrc' in gst_elements:
+        print("nvcamerasrc got executed")
         # On versions of L4T prior to 28.1, you might need to add
         # 'flip-method=2' into gst_str below.
         gst_str = ('nvcamerasrc ! '
@@ -103,10 +104,11 @@ def open_cam_onboard(width, height):
                    'format=(string)BGRx ! '
                    'videoconvert ! appsink').format(width, height)
     elif 'nvarguscamerasrc' in gst_elements:
+        print("---------------------------nvarguscamerasrc got executed")
         gst_str = ('nvarguscamerasrc ! '
                    'video/x-raw(memory:NVMM), '
                    'width=(int)3280, height=(int)1848, '
-                   'format=(string)NV12, framerate=(fraction)20/1 ! '
+                   'format=(string)NV12, framerate=(fraction)10/1 ! '
                    'nvvidconv flip-method=0 ! '
                    'video/x-raw, width=(int){}, height=(int){}, '
                    'format=(string)BGRx ! '
