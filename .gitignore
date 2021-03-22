@@ -10,3 +10,6 @@
 *.d
 *.crf
 STM32_IR_UI/User_Interface/Drivers/CMSIS/*
+*.htm
+*.dep
+*.crf
