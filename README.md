@@ -1,2 +1,2 @@
-# Portable-COVID-19-Screening-Device
+# COVID-19-Screening-Device
 ESE Final Year Capstone Project
