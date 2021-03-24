@@ -167,7 +167,6 @@ volatile uint32_t int_temp;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -176,14 +175,14 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+	HAL_Delay(2000);
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+	HAL_Delay(50);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -195,11 +194,12 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-	
+	ADC_CH5_Enable();
+	HAL_Delay(100);
 	//Initialize I2C slave interrupt listen from Jetson Nano
 	g_i2c_rx_buff = 0;
 	HAL_I2C_EnableListen_IT(&hi2c2);
-	
+	HAL_Delay(100);
 
   /* USER CODE END 2 */
 
@@ -218,7 +218,8 @@ int main(void)
 	g_State = IDLE;
 
   while (1)
-  {		
+  {	
+		
 		switch (g_State)
 		{	
 			case IR_UI:
@@ -377,7 +378,9 @@ int main(void)
 				HAL_Delay(50);
 				break;
 			case IDLE:
-				HAL_Delay(50);
+				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+				HAL_Delay(1000);
+				HAL_I2C_EnableListen_IT(&hi2c2);
 				break;
 			}
     /* USER CODE END WHILE */
@@ -400,12 +403,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -414,7 +415,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -424,7 +425,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -457,7 +458,7 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE END ADC1_Init 0 */
 
-  //ADC_ChannelConfTypeDef sConfig = {0};
+//  ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -468,9 +469,9 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.NbrOfConversion = 1;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -618,7 +619,7 @@ static void MX_GPIO_Init(void)
 void HAL_I2C_AddrCallback (I2C_HandleTypeDef * hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
 	UNUSED(AddrMatchCode);
-	
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
 	switch (TransferDirection)
 	{
 		case I2C_DIRECTION_TRANSMIT:
@@ -626,7 +627,7 @@ void HAL_I2C_AddrCallback (I2C_HandleTypeDef * hi2c, uint8_t TransferDirection, 
 			{
 				 Error_Handler();
 			}
-
+			
 			break;
 		case I2C_DIRECTION_RECEIVE:
 			if (HAL_I2C_Slave_Seq_Transmit_IT(&hi2c2, (uint8_t *) &g_i2c_tx_buff, 1, I2C_LAST_FRAME) != HAL_OK) 
@@ -644,7 +645,7 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	//Send completion callback function 
 	g_i2c_tx_buff = 0;
-
+	HAL_I2C_EnableListen_IT(&hi2c2);
 }
 
 //This callback function is triggered after the I2C recieve interrupt ends.
@@ -653,6 +654,7 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	//Receive completion callback function
+	
 	switch (g_i2c_rx_buff)
 	{
 		case I2C_SET_SPO2: 
@@ -679,14 +681,15 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	}
 	
 	g_i2c_rx_buff = 0;
-	
+	HAL_I2C_EnableListen_IT(&hi2c2);
 	
 }
 // This is the last callback function triggered after any I2C communication
 //.. which renables the interrupt listen on the I2C bus.
 void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 { 
-  HAL_I2C_EnableListen_IT(hi2c); // Restart
+  HAL_I2C_EnableListen_IT(&hi2c2); // Restart
+	//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
 }
 
 void ADC_CH5_Enable(void)
@@ -725,9 +728,11 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
   __disable_irq();
   while (1)
   {
+		 
   }
   /* USER CODE END Error_Handler_Debug */
 }
