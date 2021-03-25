@@ -145,9 +145,6 @@ SenseState g_State = IR_UI;
 volatile uint16_t IR_Right = 0;
 volatile uint16_t IR_Left = 0;
 
-//I2C to Jetson Nano Transmit and Reciever 8 bit buffer
-volatile uint8_t g_i2c_rx_buff = 0;
-volatile uint8_t g_i2c_tx_buff = 0;
 
 //Encoded value to send to jetson nano for IR UI
 volatile uint8_t g_IR_UI_status = 0;
@@ -158,6 +155,12 @@ volatile int temp_local_read1;
 volatile uint32_t upper_byte = 0;
 volatile uint32_t lower_byte = 0;
 volatile uint32_t int_temp;
+
+
+//I2C to Jetson Nano Transmit and Reciever 8 bit buffer
+volatile uint8_t g_i2c_rx_buff = 0;
+volatile uint8_t g_i2c_tx_buff = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -267,7 +270,14 @@ int main(void)
 				int_temp = (upper_byte << 8)| lower_byte;
 				//temperature = int_temp*0.02 - 273.15; //Formula from data sheet for temp calculation but omits decimals
 				temp_local_read1 = (int_temp << 1) - 27315; //Temp of Object in front of Sensor
-				g_i2c_tx_buff = temp_local_read1/20;
+				if (temp_local_read1 >= 5100)
+				{
+					g_i2c_tx_buff = 255;
+				}
+				else
+				{
+					g_i2c_tx_buff = temp_local_read1/20;
+				}
 				HAL_Delay(50);
 
 				break;
@@ -367,20 +377,28 @@ int main(void)
 				// Check if PC6 reads 0 value from Sanitizer IR sensor
 				if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6) == 0)
 				{
-					HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7); //pump on
 					g_i2c_tx_buff = 1;
-					HAL_Delay(1000); //delay for 1 seconds/pump dispense time				
-					HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7); // pump off
-					HAL_Delay(3000);
-					g_i2c_tx_buff = 0;
+					
+					__HAL_RCC_I2C2_FORCE_RESET();
+					HAL_Delay(5);
+					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7,GPIO_PIN_SET); //pump on
+					HAL_Delay(500); //delay for 1 seconds/pump dispense time	
+					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7,GPIO_PIN_RESET); // pump off
+					HAL_Delay(5);
+					__HAL_RCC_I2C2_RELEASE_RESET();
+					__HAL_I2C_RESET_HANDLE_STATE(&hi2c2);
+					MX_I2C2_Init();
+					__HAL_I2C_RESET_HANDLE_STATE(&hi2c1);
+					MX_I2C1_Init();
+					HAL_I2C_EnableListen_IT(&hi2c2);
+					HAL_Delay(5000);
 				}
-				
+
 				HAL_Delay(50);
 				break;
 			case IDLE:
-				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
-				HAL_Delay(1000);
-				HAL_I2C_EnableListen_IT(&hi2c2);
+			
+				HAL_Delay(50);
 				break;
 			}
     /* USER CODE END WHILE */
@@ -439,10 +457,10 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* I2C2_EV_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(I2C2_EV_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(I2C2_EV_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
   /* I2C2_ER_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(I2C2_ER_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(I2C2_ER_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(I2C2_ER_IRQn);
 }
 
@@ -692,6 +710,7 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 	//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
 }
 
+
 void ADC_CH5_Enable(void)
 {
   /** Configure Regular Channel
@@ -728,7 +747,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-	 HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+	 
   __disable_irq();
   while (1)
   {
