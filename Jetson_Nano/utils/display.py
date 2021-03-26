@@ -28,8 +28,8 @@ def show_fps(img, fps):
     font = cv2.FONT_HERSHEY_PLAIN
     line = cv2.LINE_AA
     fps_text = 'FPS: {:.2f}'.format(fps)
-    cv2.putText(img, fps_text, (11, 30), font, 1, (32, 32, 32), 4, line)
-    cv2.putText(img, fps_text, (10, 30), font, 1, (240, 240, 240), 1, line)
+    cv2.putText(img, fps_text, (11, 20), font, 1.0, (32, 32, 32), 4, line)
+    cv2.putText(img, fps_text, (10, 20), font, 1.0, (240, 240, 240), 1, line)
     return img
 
 
